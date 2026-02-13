@@ -1,0 +1,23 @@
+name: DEPLOY_RUNNER
+
+# Ce workflow se déclenche après le succès du workflow TEST
+on:
+  workflow_run:
+    workflows: ["TEST"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    # Ne s’exécute que si le workflow TEST a réussi
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    # Le job doit s’exécuter sur le runner self-hosted
+    runs-on: [self-hosted, deploy, linux]
+
+    steps:
+      # Récupérer le code du repo
+      - uses: actions/checkout@v4
+
+      # Copier le fichier HTML vers le serveur nginx
+      - name: Copy files
+        run: sudo cp index.html /var/www/html/index.html
